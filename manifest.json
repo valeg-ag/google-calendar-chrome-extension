@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name": "google-calendar-chrome-extension",
+    "version": "1.0",
+    "description": "google-calendar-chrome-extension",
+    "icons": {
+        "128": "ico128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [ "https://calendar.google.com/*"],
+            "js": ["app.js"]
+        }
+    ]
+}
