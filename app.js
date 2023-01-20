@@ -32,6 +32,7 @@ function initFn() {
                             achieve.dates.push(new Date(dateInInterval));
                             dateInInterval.setDate(dateInInterval.getDate() + 1);
                         }
+                        achieve.dates.push(new Date(to));
                     }
                     else {
                         achieve.dates.push(new Date(d));
