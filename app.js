@@ -1,10 +1,12 @@
 let holidays = [];
 let officedays = [];
+let achieves = [];
 
 function initFn() {
     document.addEventListener("DOMNodeInserted", highlightDates);
 
-    fetch("https://valeg-ag.github.io/calendar.json", { cache: "no-cache" }).then((response) => {
+    fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
+    // fetch("https://valeg-ag.github.io/calendar.json", { cache: "no-cache" }).then((response) => {
         response.text().then((text) => {
             const calendar = JSON.parse(text);
             for (const h of calendar["holidays"] || []) {
@@ -19,6 +21,48 @@ function initFn() {
             for (const o of calendar["officedays"] || []) {
                 officedays.push(new Date(o));
             }
+
+            console.log("calendar", calendar);
+            console.log("achieves", calendar["achieves"]);
+
+            for (const a of calendar["achieves"] || []) {
+                const achieve = { color: a.color, dates: []};
+                for (const d of a.dates) {
+                    achieve.dates.push(new Date(d));
+                }
+            }
+
+            achieves = [
+                {
+                    "color": "red",
+                    "dates": [
+                        new Date("2023.01.03"),
+                        new Date("2023.01.04"),
+                        new Date("2023.01.05")
+                    ]
+                },
+                {
+                    "color": "green",
+                    "dates": [
+                        new Date("2023.01.01"),
+                        new Date("2023.01.02"),
+                        new Date("2023.01.06"),
+                        new Date("2023.01.07"),
+                        new Date("2023.01.08"),
+                        new Date("2023.01.09"),
+                        new Date("2023.01.10"),
+                        new Date("2023.01.11"),
+                        new Date("2023.01.12"),
+                        new Date("2023.01.13"),
+                        new Date("2023.01.14"),
+                        new Date("2023.01.15"),
+                        new Date("2023.01.16"),
+                        new Date("2023.01.17"),
+                        new Date("2023.01.18"),
+                        new Date("2023.01.19")
+                    ]
+                }
+            ];
         });
     });
 }
@@ -59,6 +103,27 @@ function highlightElementIfNecessary(e, date, space){
     }
 }
 
+function hasDateInArray(arr, date) {
+    for(const d of arr) {
+        if(isDaysEqual(d, date)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function getAchievesOnDate(date) {
+    achievesOnDate = [];
+    for(const a of achieves){
+        if( hasDateInArray(a.dates, date)) {
+            achievesOnDate.push(a.color);
+        }
+    }
+
+    return achievesOnDate;
+}
+
 function highlightDates(e) {
     const visibleDatakeys = document.querySelectorAll("[role='main']>[data-view-heading]>[role='grid']>[role='presentation']>[role='row']>[aria-hidden='true']>div[data-datekey]");
 
@@ -72,6 +137,35 @@ function highlightDates(e) {
         const date = datekeyToDate(dateDiv.getAttribute("data-datekey"));
 
         highlightElementIfNecessary(dateDiv, date, "20px");
+
+        if (dateDiv.getElementsByClassName("achieves").length === 0) {
+            const achievesColors = getAchievesOnDate(date);
+            // console.log("achievesColors", achievesColors);
+            if (achievesColors.length !== 0) {
+                const achieveGr = document.createElement('div');
+                achieveGr.className = "achieves";
+//                achieveGr.style.width = `${10*achievesColors.length}px`;
+                achieveGr.style.height = "10px";
+                achieveGr.style.position = "absolute";
+                achieveGr.style.bottom = "0px";
+                achieveGr.style.margin = "5px"
+//                achieveGr.style.background = "red";
+
+                dateDiv.appendChild(achieveGr);
+
+                for(const color of achievesColors) {
+                    const achieveEl = document.createElement('div');
+                    achieveEl.style.float = "left";
+                    achieveEl.style.width = "10px";
+                    achieveEl.style.height = "10px";
+                    achieveEl.style.background = color;
+                    achieveEl.style.borderRadius = "5px";
+                    achieveEl.style.marginRight = "2px";
+
+                    achieveGr.appendChild(achieveEl);
+                }
+            }
+        }
     }
 
     for (const dateSpan of visibleYearDates) {
