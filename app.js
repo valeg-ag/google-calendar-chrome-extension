@@ -1,3 +1,9 @@
+// `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+const HOLIDAYS_COLOR = "hsl(2 100% 97%)";
+
+// `repeating-linear-gradient( -45deg, #cadefc, #cadefc 3px, transparent 3px, transparent ${space})`;
+const OFFICEDAYS_COLOR = "hsl(210 100% 97%)";
+
 let holidays = [];
 let officedays = [];
 let achieves = [];
@@ -58,24 +64,28 @@ function isDaysEqual(d1, d2) {
 
 function highlightElementIfNecessary(e, date, space){
     if (date.getDay() === 6 || date.getDay() === 0) {
-        e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+//        e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+        e.style.background = HOLIDAYS_COLOR;
     }
 
     for (const h of holidays) {
         if (Array.isArray(h)) {
             if (h[0] <= date && date <= h[1]) {
-                e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+                // e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+                e.style.background = HOLIDAYS_COLOR;
             }
         } else {
             if (isDaysEqual(h, date)) {
-                e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+//                e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
+                e.style.background = HOLIDAYS_COLOR;
             }
         }
     }
 
     for (const o of officedays) {
         if (isDaysEqual(o, date)) {
-            e.style.background = `repeating-linear-gradient( -45deg, #cadefc, #cadefc 3px, transparent 3px, transparent ${space})`;
+//            e.style.background = `repeating-linear-gradient( -45deg, #cadefc, #cadefc 3px, transparent 3px, transparent ${space})`;
+            e.style.background = OFFICEDAYS_COLOR;
         }
     }
 }
