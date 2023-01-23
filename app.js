@@ -82,7 +82,7 @@ function highlightElementIfNecessary(e, date, holidayColor, officedayColor, offi
 
     for (const o of officedays) {
         if (isDaysEqual(o, date)) {
-            if (date.getDate() <= (new Date()).getDate()) {
+            if (date <= new Date()) {
                 e.style.background = officedayColor;
             } else {
                 e.style.background = officedayFutureColor;
