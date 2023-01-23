@@ -1,8 +1,9 @@
-// `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
-const HOLIDAYS_COLOR = "hsl(2 100% 97%)";
+const HOLIDAYS_COLOR = "hsl(2 100% 99%)";
+const YEAR_HOLIDAYS_COLOR = "hsl(2 100% 92%)";
 
-// `repeating-linear-gradient( -45deg, #cadefc, #cadefc 3px, transparent 3px, transparent ${space})`;
 const OFFICEDAYS_COLOR = "hsl(210 100% 97%)";
+const YEAR_OFFICEDAYS_COLOR = "hsl(210 100% 90%)";
+const FUTURE_OFFICEDAYS_COLOR = `repeating-linear-gradient( -45deg, hsl(210 100% 97%), hsl(210 100% 97%) 3px, transparent 3px, transparent 15px)`;
 
 let holidays = [];
 let officedays = [];
@@ -29,12 +30,12 @@ function initFn() {
             }
 
             for (const a of calendar["achieves"] || []) {
-                const achieve = { color: a.color, dates: []};
-                for(const d of a.dates) {
+                const achieve = { color: a.color, dates: [] };
+                for (const d of a.dates) {
                     if (Array.isArray(d)) {
                         const dateInInterval = new Date(d[0]);
                         const to = new Date(d[1]);
-                        while(!isDaysEqual(dateInInterval, to)) {
+                        while (!isDaysEqual(dateInInterval, to)) {
                             achieve.dates.push(new Date(dateInInterval));
                             dateInInterval.setDate(dateInInterval.getDate() + 1);
                         }
@@ -62,37 +63,37 @@ function isDaysEqual(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 }
 
-function highlightElementIfNecessary(e, date, space){
+function highlightElementIfNecessary(e, date, holidayColor, officedayColor, officedayFutureColor) {
     if (date.getDay() === 6 || date.getDay() === 0) {
-//        e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
-        e.style.background = HOLIDAYS_COLOR;
+        e.style.background = holidayColor;
     }
 
     for (const h of holidays) {
         if (Array.isArray(h)) {
             if (h[0] <= date && date <= h[1]) {
-                // e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
-                e.style.background = HOLIDAYS_COLOR;
+                e.style.background = holidayColor;
             }
         } else {
             if (isDaysEqual(h, date)) {
-//                e.style.background = `repeating-linear-gradient( -45deg, #fce8eb, #fce8eb 3px, transparent 3px, transparent ${space})`;
-                e.style.background = HOLIDAYS_COLOR;
+                e.style.background = holidayColor;
             }
         }
     }
 
     for (const o of officedays) {
         if (isDaysEqual(o, date)) {
-//            e.style.background = `repeating-linear-gradient( -45deg, #cadefc, #cadefc 3px, transparent 3px, transparent ${space})`;
-            e.style.background = OFFICEDAYS_COLOR;
+            if (date.getDate() <= (new Date()).getDate()) {
+                e.style.background = officedayColor;
+            } else {
+                e.style.background = officedayFutureColor;
+            }
         }
     }
 }
 
 function hasDateInArray(arr, date) {
-    for(const d of arr) {
-        if(isDaysEqual(d, date)) {
+    for (const d of arr) {
+        if (isDaysEqual(d, date)) {
             return true;
         }
     }
@@ -102,8 +103,8 @@ function hasDateInArray(arr, date) {
 
 function getAchievesOnDate(date) {
     achievesOnDate = [];
-    for(const a of achieves){
-        if( hasDateInArray(a.dates, date)) {
+    for (const a of achieves) {
+        if (hasDateInArray(a.dates, date)) {
             achievesOnDate.push(a.color);
         }
     }
@@ -123,24 +124,21 @@ function highlightDates(e) {
     for (const dateDiv of visibleDatakeys) {
         const date = datekeyToDate(dateDiv.getAttribute("data-datekey"));
 
-        highlightElementIfNecessary(dateDiv, date, "20px");
+        highlightElementIfNecessary(dateDiv, date, HOLIDAYS_COLOR, OFFICEDAYS_COLOR, FUTURE_OFFICEDAYS_COLOR);
 
         if (dateDiv.getElementsByClassName("achieves").length === 0) {
             const achievesColors = getAchievesOnDate(date);
-            // console.log("achievesColors", achievesColors);
             if (achievesColors.length !== 0) {
                 const achieveGr = document.createElement('div');
                 achieveGr.className = "achieves";
-//                achieveGr.style.width = `${10*achievesColors.length}px`;
                 achieveGr.style.height = "10px";
                 achieveGr.style.position = "absolute";
                 achieveGr.style.bottom = "0px";
                 achieveGr.style.margin = "5px"
-//                achieveGr.style.background = "red";
 
                 dateDiv.appendChild(achieveGr);
 
-                for(const color of achievesColors) {
+                for (const color of achievesColors) {
                     const achieveEl = document.createElement('div');
                     achieveEl.style.float = "left";
                     achieveEl.style.width = "10px";
@@ -157,9 +155,9 @@ function highlightDates(e) {
 
     for (const dateSpan of visibleYearDates) {
         const datestr = dateSpan.getAttribute("data-date");
-        const date = new Date(parseInt(datestr.substring(0,4)), parseInt(datestr.substring(4,6))-1, parseInt(datestr.substring(6,8)))
+        const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
 
-        highlightElementIfNecessary(dateSpan.firstChild, date, "3px");
+        highlightElementIfNecessary(dateSpan.firstChild, date, YEAR_HOLIDAYS_COLOR, YEAR_OFFICEDAYS_COLOR, YEAR_OFFICEDAYS_COLOR);
     }
 }
 
