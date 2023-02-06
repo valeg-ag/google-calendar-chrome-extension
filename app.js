@@ -131,20 +131,20 @@ function highlightDates(e) {
             if (achievesColors.length !== 0) {
                 const achieveGr = document.createElement('div');
                 achieveGr.className = "achieves";
-                achieveGr.style.height = "10px";
+                achieveGr.style.height = "8px";
                 achieveGr.style.position = "absolute";
                 achieveGr.style.bottom = "0px";
-                achieveGr.style.margin = "5px"
+                achieveGr.style.margin = "4px"
 
                 dateDiv.appendChild(achieveGr);
 
                 for (const color of achievesColors) {
                     const achieveEl = document.createElement('div');
                     achieveEl.style.float = "left";
-                    achieveEl.style.width = "10px";
-                    achieveEl.style.height = "10px";
+                    achieveEl.style.width = "8px";
+                    achieveEl.style.height = "8px";
                     achieveEl.style.background = color;
-                    achieveEl.style.borderRadius = "5px";
+                    achieveEl.style.borderRadius = "4px";
                     achieveEl.style.marginRight = "2px";
 
                     achieveGr.appendChild(achieveEl);
