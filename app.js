@@ -6,8 +6,52 @@ const YEAR_OFFICEDAYS_COLOR = "hsl(210 100% 90%)";
 const FUTURE_OFFICEDAYS_COLOR = `repeating-linear-gradient( -45deg, hsl(210 100% 97%), hsl(210 100% 97%) 3px, transparent 3px, transparent 15px)`;
 
 let holidays = [];
+let notholidays = [];
 let officedays = [];
 let achieves = [];
+
+const onCalendarJsonFetched = (calendar) => {
+    for (const h of calendar["holidays"] || []) {
+        if (Array.isArray(h)) {
+            holidays.push([new Date(h[0]), new Date(h[1])]);
+        }
+        else {
+            holidays.push(new Date(h));
+        }
+    }
+
+    for (const h of calendar["notholidays"] || []) {
+        if (Array.isArray(h)) {
+            notholidays.push([new Date(h[0]), new Date(h[1])]);
+        }
+        else {
+            notholidays.push(new Date(h));
+        }
+    }
+
+    for (const o of calendar["officedays"] || []) {
+        officedays.push(new Date(o));
+    }
+
+    for (const a of calendar["achieves"] || []) {
+        const achieve = { color: a.color, dates: [] };
+        for (const d of a.dates) {
+            if (Array.isArray(d)) {
+                const dateInInterval = new Date(d[0]);
+                const to = new Date(d[1]);
+                while (!isDaysEqual(dateInInterval, to)) {
+                    achieve.dates.push(new Date(dateInInterval));
+                    dateInInterval.setDate(dateInInterval.getDate() + 1);
+                }
+                achieve.dates.push(new Date(to));
+            }
+            else {
+                achieve.dates.push(new Date(d));
+            }
+        }
+        achieves.push(achieve);
+    }
+}
 
 function initFn() {
     document.addEventListener("DOMNodeInserted", highlightDates);
@@ -16,37 +60,16 @@ function initFn() {
     fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
         response.text().then((text) => {
             const calendar = JSON.parse(text);
-            for (const h of calendar["holidays"] || []) {
-                if (Array.isArray(h)) {
-                    holidays.push([new Date(h[0]), new Date(h[1])]);
-                }
-                else {
-                    holidays.push(new Date(h));
-                }
-            }
+            onCalendarJsonFetched(calendar);
 
-            for (const o of calendar["officedays"] || []) {
-                officedays.push(new Date(o));
-            }
-
-            for (const a of calendar["achieves"] || []) {
-                const achieve = { color: a.color, dates: [] };
-                for (const d of a.dates) {
-                    if (Array.isArray(d)) {
-                        const dateInInterval = new Date(d[0]);
-                        const to = new Date(d[1]);
-                        while (!isDaysEqual(dateInInterval, to)) {
-                            achieve.dates.push(new Date(dateInInterval));
-                            dateInInterval.setDate(dateInInterval.getDate() + 1);
-                        }
-                        achieve.dates.push(new Date(to));
+            fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.old.json", { cache: "no-cache" })
+                .then((oldResponse) => {
+                    oldResponse.text().then((oldText) => {
+                        const oldCalendar = JSON.parse(oldText);
+                        onCalendarJsonFetched(oldCalendar);
                     }
-                    else {
-                        achieve.dates.push(new Date(d));
-                    }
-                }
-                achieves.push(achieve);
-            }
+                    );
+                });
         });
     });
 }
@@ -63,9 +86,27 @@ function isDaysEqual(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 }
 
+function isNotHoliday(date) {
+    for (const h of notholidays) {
+        if (Array.isArray(h)) {
+            if (h[0] <= date && date <= h[1]) {
+                return true;
+            }
+        } else {
+            if (isDaysEqual(h, date)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 function highlightElementIfNecessary(e, date, holidayColor, officedayColor, officedayFutureColor) {
     if (date.getDay() === 6 || date.getDay() === 0) {
-        e.style.background = holidayColor;
+        if (!isNotHoliday(date)) {
+            e.style.background = holidayColor;
+        }
     }
 
     for (const h of holidays) {
