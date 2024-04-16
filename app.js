@@ -54,9 +54,8 @@ const onCalendarJsonFetched = (calendar) => {
 }
 
 function initFn() {
-    document.addEventListener("DOMNodeInserted", highlightDates);
+    // document.addEventListener("DOMNodeInserted", highlightDates);
 
-    // fetch("https://valeg-ag.github.io/calendar.json", { cache: "no-cache" }).then((response) => {
     fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
         response.text().then((text) => {
             const calendar = JSON.parse(text);
@@ -72,6 +71,18 @@ function initFn() {
                 });
         });
     });
+
+    const observer = new MutationObserver(function (mutations_list) {
+        for (let mutation of mutations_list) {
+            if (mutation.type === "childList" && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                highlightDates();
+                break;
+            }
+        }
+    });
+
+    observer.observe(document.querySelector("[role='main']"), { subtree: true, childList: true, attributes: true });
+    observer.observe(document.querySelector("[data-viewkey='YEAR']"), { subtree: true, childList: true, attributes: true });
 }
 
 function datekeyToDate(dateKey) {
