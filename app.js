@@ -1,4 +1,4 @@
-const HOLIDAYS_COLOR = "hsl(2 100% 99%)";
+const HOLIDAYS_COLOR = "hsl(2 100% 98%)";
 const YEAR_HOLIDAYS_COLOR = "hsl(2 100% 92%)";
 
 const OFFICEDAYS_COLOR = "hsl(210 100% 97%)";
@@ -9,6 +9,9 @@ let holidays = [];
 let notholidays = [];
 let officedays = [];
 let achieves = [];
+
+let year_achieve = undefined; // "b"
+let refreshes = [];
 
 const onCalendarJsonFetched = (calendar) => {
     for (const h of calendar["holidays"] || []) {
@@ -34,7 +37,20 @@ const onCalendarJsonFetched = (calendar) => {
     }
 
     for (const a of calendar["achieves"] || []) {
-        const achieve = { color: a.color, dates: [] };
+        let achieve = undefined;
+        let newAchieve = false;
+        for (let existingAchieve of achieves) {
+            if (existingAchieve.name === a.name) {
+                achieve = existingAchieve;
+                break;
+            }
+        }
+
+        if (!achieve) {
+            achieve = { name: a.name, color: a.color, dates: [] };
+            newAchieve = true;
+        }
+
         for (const d of a.dates) {
             if (Array.isArray(d)) {
                 const dateInInterval = new Date(d[0]);
@@ -49,7 +65,10 @@ const onCalendarJsonFetched = (calendar) => {
                 achieve.dates.push(new Date(d));
             }
         }
-        achieves.push(achieve);
+
+        if (newAchieve) {
+            achieves.push(achieve);
+        }
     }
 }
 
@@ -74,15 +93,38 @@ function initFn() {
 
     const observer = new MutationObserver(function (mutations_list) {
         for (let mutation of mutations_list) {
-            if (mutation.type === "childList" && (mutation.addedNodes.length || mutation.removedNodes.length)) {
-                highlightDates();
+            if (refreshes.length) {
                 break;
             }
+
+            if (mutation.type === "childList" && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                for (const node of mutation.addedNodes) {
+                    if (node.className !== "achieves" && node.className !== "achieve") {
+                        refreshes.push({});
+                        break;
+                    }
+                }
+
+                for (const node of mutation.removedNodes) {
+                    if (node.className === "achieves" || node.className === "achieve") {
+                        refreshes.push({});
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (refreshes.length) {
+            setTimeout(() => {
+                if (refreshes.length) {
+                    refreshes = [];
+                    highlightDates();
+                }
+            }, 300);
         }
     });
 
-    observer.observe(document.querySelector("[role='main']"), { subtree: true, childList: true, attributes: true });
-    observer.observe(document.querySelector("[data-viewkey='YEAR']"), { subtree: true, childList: true, attributes: true });
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true });
 }
 
 function datekeyToDate(dateKey) {
@@ -154,17 +196,35 @@ function hasDateInArray(arr, date) {
 }
 
 function getAchievesOnDate(date) {
-    achievesOnDate = [];
+    let achievesOnDate = [];
     for (const a of achieves) {
         if (hasDateInArray(a.dates, date)) {
-            achievesOnDate.push(a.color);
+            achievesOnDate.push({ name: a.name, color: a.color });
         }
     }
 
     return achievesOnDate;
 }
 
+function hasAchieveOnDate(date, achieveName) {
+    for (const a of achieves) {
+        if (a.name !== achieveName) {
+            continue;
+        }
+
+        if (hasDateInArray(a.dates, date)) {
+            return a.color;
+        }
+
+        break;
+    }
+
+    return undefined;
+}
+
 function highlightDates(e) {
+    console.log('called highlightDates()');
+
     const visibleDatakeys = document.querySelectorAll("[role='main']>[data-view-heading]>[role='grid']>[role='presentation']>[role='row']>[aria-hidden='true']>div[data-datekey]");
 
     const visibleYearDates = document.querySelectorAll("[data-viewkey='YEAR']>div>div>div>div>div>div>div>div>div>div>div[role='grid']>div[role='rowgroup']>div[role='row']>span[data-date]");
@@ -190,26 +250,45 @@ function highlightDates(e) {
 
                 dateDiv.appendChild(achieveGr);
 
-                for (const color of achievesColors) {
+                for (const a of achievesColors) {
                     const achieveEl = document.createElement('div');
+                    achieveEl.className = "achieve";
                     achieveEl.style.float = "left";
                     achieveEl.style.width = "8px";
                     achieveEl.style.height = "8px";
-                    achieveEl.style.background = color;
+                    achieveEl.style.background = a.color;
                     achieveEl.style.borderRadius = "4px";
                     achieveEl.style.marginRight = "2px";
 
                     achieveGr.appendChild(achieveEl);
+
+                    achieveEl.onclick = (e) => {
+                        year_achieve = a.name;
+                        e.stopPropagation();
+                    }
                 }
             }
         }
     }
 
-    for (const dateSpan of visibleYearDates) {
-        const datestr = dateSpan.getAttribute("data-date");
-        const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
+    if (year_achieve === undefined) {
+        for (const dateSpan of visibleYearDates) {
+            const datestr = dateSpan.getAttribute("data-date");
+            const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
 
-        highlightElementIfNecessary(dateSpan.firstChild, date, YEAR_HOLIDAYS_COLOR, YEAR_OFFICEDAYS_COLOR, YEAR_OFFICEDAYS_COLOR);
+            highlightElementIfNecessary(dateSpan.firstChild, date, YEAR_HOLIDAYS_COLOR, YEAR_OFFICEDAYS_COLOR, YEAR_OFFICEDAYS_COLOR);
+        }
+    }
+    else {
+        for (const dateSpan of visibleYearDates) {
+            const datestr = dateSpan.getAttribute("data-date");
+            const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
+
+            const achieveColor = hasAchieveOnDate(date, year_achieve);
+            if (achieveColor) {
+                dateSpan.firstChild.style.background = achieveColor;
+            }
+        }
     }
 }
 
