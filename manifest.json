@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "google-calendar-chrome-extension",
     "version": "1.0",
     "description": "google-calendar-chrome-extension",
