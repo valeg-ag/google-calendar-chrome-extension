@@ -251,8 +251,9 @@ function highlightDates(e) {
                 dateDiv.appendChild(achieveGr);
 
                 for (const a of achievesColors) {
-                    const achieveEl = document.createElement('div');
+                    const achieveEl = document.createElement('span');
                     achieveEl.className = "achieve";
+                    achieveEl.title = a.name;
                     achieveEl.style.float = "left";
                     achieveEl.style.width = "8px";
                     achieveEl.style.height = "8px";
