@@ -177,9 +177,11 @@ function highlightElementIfNecessary(e, date, holidayColor, officedayColor, offi
     for (const o of officedays) {
         if (isDaysEqual(o, date)) {
             if (date <= new Date()) {
-                e.style.background = officedayColor;
+                if (officedayColor)
+                    e.style.background = officedayColor;
             } else {
-                e.style.background = officedayFutureColor;
+                if (officedayFutureColor)
+                    e.style.background = officedayFutureColor;
             }
         }
     }
@@ -272,19 +274,29 @@ function highlightDates(e) {
         }
     }
 
-    if (year_achieve === undefined) {
-        for (const dateSpan of visibleYearDates) {
-            const datestr = dateSpan.getAttribute("data-date");
-            const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
+    for (const dateSpan of visibleYearDates) {
+        const datestr = dateSpan.getAttribute("data-date");
+        const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
 
+        const monthDiv = dateSpan.parentNode.parentNode.parentNode.parentNode;
+        const monthstr = monthDiv.getAttribute("data-month");
+
+        const isDayFromOtherMonth = datestr.substring(0, 6) !== monthstr.substring(0, 6);
+
+        dateSpan.firstChild.style.opacity = isDayFromOtherMonth ? 0.2 : 1;
+
+        // don't show office-days in mode "achieves"-mode
+        if (year_achieve) {
+            highlightElementIfNecessary(dateSpan.firstChild, date, YEAR_HOLIDAYS_COLOR, undefined, undefined);
+        } else {
             highlightElementIfNecessary(dateSpan.firstChild, date, YEAR_HOLIDAYS_COLOR, YEAR_OFFICEDAYS_COLOR, YEAR_OFFICEDAYS_COLOR);
         }
-    }
-    else {
-        for (const dateSpan of visibleYearDates) {
-            const datestr = dateSpan.getAttribute("data-date");
-            const date = new Date(parseInt(datestr.substring(0, 4)), parseInt(datestr.substring(4, 6)) - 1, parseInt(datestr.substring(6, 8)))
 
+        if (isDayFromOtherMonth) {
+            continue;
+        }
+
+        if (year_achieve) {
             const achieveColor = hasAchieveOnDate(date, year_achieve);
             if (achieveColor) {
                 dateSpan.firstChild.style.background = achieveColor;
