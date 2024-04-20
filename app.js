@@ -227,6 +227,40 @@ function hasAchieveOnDate(date, achieveName) {
 function highlightDates(e) {
     console.log('called highlightDates()');
 
+    const showAchievesDivsList = document.querySelectorAll("input[class='show-achieves-div']");
+
+    if (showAchievesDivsList.length === 0) {
+        const leftPanelLastElem = document.querySelectorAll("div[class='erDb5d']");
+
+        const showAchievesChBox = document.createElement('input');
+        showAchievesChBox.id = "show-achieves-ch-box";
+        showAchievesChBox.type = "checkbox";
+        showAchievesChBox.className = "show-achieves-div";
+
+        showAchievesChBox.addEventListener("click", (e) => {
+            if( !showAchievesChBox.checked) {
+                const achievesList = document.querySelectorAll("div[class='achieves']");
+                for(const achieves of  achievesList) {
+                    achieves.remove();
+                }
+            }
+
+            highlightDates();
+        });
+
+        const showAchievesLabel = document.createElement('label');
+        showAchievesLabel.htmlFor = "show-achieves-ch-box";
+        showAchievesLabel.textContent = "Show achieves";
+
+        const showAchievesDiv = document.createElement('div');
+        showAchievesDiv.style.marginLeft = "24px";
+
+        showAchievesDiv.appendChild(showAchievesChBox);
+        showAchievesDiv.appendChild(showAchievesLabel);
+
+        leftPanelLastElem[0].parentNode.insertBefore(showAchievesDiv, leftPanelLastElem[0]);
+    }
+
     const visibleDatakeys = document.querySelectorAll("[role='main']>[data-view-heading]>[role='grid']>[role='presentation']>[role='row']>[aria-hidden='true']>div[data-datekey]");
 
     const visibleYearDates = document.querySelectorAll("[data-viewkey='YEAR']>div>div>div>div>div>div>div>div>div>div>div[role='grid']>div[role='rowgroup']>div[role='row']>span[data-date]");
@@ -235,17 +269,19 @@ function highlightDates(e) {
         return;
     }
 
+    const showAchievesChBox = document.getElementById("show-achieves-ch-box");
+
     for (const dateDiv of visibleDatakeys) {
         const date = datekeyToDate(dateDiv.getAttribute("data-datekey"));
 
         highlightElementIfNecessary(dateDiv, date, HOLIDAYS_COLOR, OFFICEDAYS_COLOR, FUTURE_OFFICEDAYS_COLOR);
 
-        if (dateDiv.getElementsByClassName("achieves").length === 0) {
+        if (showAchievesChBox.checked && dateDiv.getElementsByClassName("achieves").length === 0) {
             const achievesColors = getAchievesOnDate(date);
             if (achievesColors.length !== 0) {
                 const achieveGr = document.createElement('div');
                 achieveGr.className = "achieves";
-                achieveGr.style.height = "8px";
+                achieveGr.style.height = "12px";
                 achieveGr.style.position = "absolute";
                 achieveGr.style.bottom = "0px";
                 achieveGr.style.margin = "4px"
@@ -257,10 +293,10 @@ function highlightDates(e) {
                     achieveEl.className = "achieve";
                     achieveEl.title = a.name;
                     achieveEl.style.float = "left";
-                    achieveEl.style.width = "8px";
-                    achieveEl.style.height = "8px";
+                    achieveEl.style.width = "12px";
+                    achieveEl.style.height = "12px";
                     achieveEl.style.background = a.color;
-                    achieveEl.style.borderRadius = "4px";
+                    achieveEl.style.borderRadius = "6px";
                     achieveEl.style.marginRight = "2px";
 
                     achieveGr.appendChild(achieveEl);
