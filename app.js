@@ -262,8 +262,7 @@ function highlightDates(e) {
     }
 
     const visibleDatakeys = document.querySelectorAll("[role='main']>[data-view-heading]>[role='grid']>[role='presentation']>[role='row']>[aria-hidden='true']>div[data-datekey]");
-
-    const visibleYearDates = document.querySelectorAll("[data-viewkey='YEAR']>div>div>div>div>div>div>div>div>div>div>div[role='grid']>div[role='rowgroup']>div[role='row']>span[data-date]");
+    const visibleYearDates = document.querySelectorAll("[data-viewkey='YEAR']>div>div>div>div>div>div>div>div>div>div>table[role='grid']>tbody>tr>td[data-date]");
 
     if (!visibleDatakeys.length && !visibleYearDates.length) {
         return;
