@@ -75,21 +75,31 @@ const onCalendarJsonFetched = (calendar) => {
 function initFn() {
     // document.addEventListener("DOMNodeInserted", highlightDates);
 
-    fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
-        response.text().then((text) => {
-            const calendar = JSON.parse(text);
-            onCalendarJsonFetched(calendar);
+    // fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
+    //     response.text().then((text) => {
+    //         const calendar = JSON.parse(text);
+    //         onCalendarJsonFetched(calendar);
 
-            fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.old.json", { cache: "no-cache" })
-                .then((oldResponse) => {
-                    oldResponse.text().then((oldText) => {
-                        const oldCalendar = JSON.parse(oldText);
-                        onCalendarJsonFetched(oldCalendar);
-                    }
-                    );
-                });
+    //         fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.old.json", { cache: "no-cache" })
+    //             .then((oldResponse) => {
+    //                 oldResponse.text().then((oldText) => {
+    //                     const oldCalendar = JSON.parse(oldText);
+    //                     onCalendarJsonFetched(oldCalendar);
+    //                 }
+    //                 );
+    //             });
+    //     });
+    // });
+
+    fetch("https://script.google.com/macros/s/AKfycbyXVHO3MbkJ1Ln67OwDAFfRzCIxjb_W1vxoPmgXwcv9oFTB5tKhjH_VX1SkZmlxMxBtCw/exec", { cache: "no-cache" })
+        .then((response) => {
+            response.text().then((text) => {
+                const calendar = JSON.parse(text);
+                onCalendarJsonFetched(calendar);
+                highlightDates();
+            }
+            );
         });
-    });
 
     const observer = new MutationObserver(function (mutations_list) {
         for (let mutation of mutations_list) {
@@ -226,6 +236,9 @@ function hasAchieveOnDate(date, achieveName) {
 
 function highlightDates(e) {
     console.log('called highlightDates()');
+
+    if (!holidays.length)
+        return;
 
     const showAchievesDivsList = document.querySelectorAll("input[class='show-achieves-div']");
 
