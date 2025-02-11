@@ -91,7 +91,13 @@ function initFn() {
     //     });
     // });
 
-    fetch("https://script.google.com/macros/s/AKfycbyXVHO3MbkJ1Ln67OwDAFfRzCIxjb_W1vxoPmgXwcv9oFTB5tKhjH_VX1SkZmlxMxBtCw/exec", { cache: "no-cache" })
+           
+//    fetch("https://script.google.com/macros/s/AKfycbyXVHO3MbkJ1Ln67OwDAFfRzCIxjb_W1vxoPmgXwcv9oFTB5tKhjH_VX1SkZmlxMxBtCw/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbz-r6yKVyZOKDZkO0zO_jA07FtiBfcjRJoEdGwBoeFWzV01z6R7K2GPACzvOYslEs1HeA/exec", {
+        redirect: "follow",
+        method: "GET",
+        cache: "no-cache"
+    })
         .then((response) => {
             response.text().then((text) => {
                 const calendar = JSON.parse(text);
