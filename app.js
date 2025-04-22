@@ -5,6 +5,8 @@ const OFFICEDAYS_COLOR = "hsl(210 100% 97%)";
 const YEAR_OFFICEDAYS_COLOR = "hsl(210 100% 90%)";
 const FUTURE_OFFICEDAYS_COLOR = `repeating-linear-gradient( -45deg, hsl(210 100% 97%), hsl(210 100% 97%) 3px, transparent 3px, transparent 15px)`;
 
+const REGULAR_COLOR = 'white';
+
 let holidays = [];
 let notholidays = [];
 let officedays = [];
@@ -172,6 +174,9 @@ function isNotHoliday(date) {
 }
 
 function highlightElementIfNecessary(e, date, holidayColor, officedayColor, officedayFutureColor) {
+
+    e.style.background = REGULAR_COLOR;
+
     if (date.getDay() === 6 || date.getDay() === 0) {
         if (!isNotHoliday(date)) {
             e.style.background = holidayColor;
