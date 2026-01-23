@@ -358,7 +358,42 @@ function highlightDates(e) {
         if (year_achieve) {
             const achieveColor = hasAchieveOnDate(date, year_achieve);
             if (achieveColor) {
-                dateSpan.firstChild.style.background = achieveColor;
+                dateSpan.firstChild.style.background = `${achieveColor}60`;
+            }
+        }
+
+        if (showAchievesChBox.checked && dateSpan.getElementsByClassName("achieves").length === 0) {
+            const achievesColors = getAchievesOnDate(date);
+            if (achievesColors.length !== 0) {
+                const achieveGr = document.createElement('div');
+                achieveGr.className = "achieves";
+                achieveGr.style.height = "6px";
+                achieveGr.style.position = "absolute";
+                achieveGr.style.bottom = "0px";
+                achieveGr.style.margin = "2px"
+
+                dateSpan.appendChild(achieveGr);
+
+                for (const a of achievesColors) {
+                    const achieveEl = document.createElement('span');
+                    achieveEl.className = "achieve";
+                    achieveEl.title = a.name;
+                    achieveEl.style.float = "left";
+                    achieveEl.style.width = "6px";
+                    achieveEl.style.height = "6px";
+                    achieveEl.style.background = a.color;
+                    achieveEl.style.borderRadius = "3px";
+                    achieveEl.style.marginRight = "2px";
+                    achieveEl.style.position = "relative";
+                    achieveEl.style.zIndex = 1000;
+
+                    achieveGr.appendChild(achieveEl);
+
+                    achieveEl.onclick = (e) => {
+                        year_achieve = a.name;
+                        e.stopPropagation();
+                    }
+                }
             }
         }
     }
