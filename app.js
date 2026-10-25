@@ -27,7 +27,7 @@ function addFullscreenButton() {
     btn.id = "tm-fs-btn";
     btn.textContent = "⛶";
     btn.style.cssText =
-        "position:fixed;right:8px;bottom:8px;z-index:2147483647;" +
+        "position:fixed;right:-18px;bottom:60px;z-index:2147483647;" +
         "width:40px;height:40px;border-radius:20px;border:none;" +
         "background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:1;" +
         "box-shadow:0 2px 6px rgba(0,0,0,.3)";
