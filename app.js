@@ -1,3 +1,53 @@
+// ==UserScript==
+// @name         Google Calendar tweaks
+// @match        https://calendar.google.com/*
+// @run-at       document-idle
+// @grant        none
+// ==/UserScript==
+
+
+function mark(text) {
+    let box = document.getElementById("tm-debug");
+    if (!box) {
+        box = document.createElement("div");
+        box.id = "tm-debug";
+        box.style.cssText = "position:fixed;top:0;left:0;z-index:999999;background:#ff0;color:#000;font:12px monospace;padding:2px";
+        (document.body || document.documentElement).appendChild(box);
+    }
+    box.textContent += text + " ";
+}
+
+function addFullscreenButton() {
+    if (document.getElementById("tm-fs-btn")) return;
+
+    const btn = document.createElement("button");
+    btn.id = "tm-fs-btn";
+    btn.textContent = "⛶";
+    btn.style.cssText =
+        "position:fixed;right:8px;bottom:8px;z-index:2147483647;" +
+        "width:40px;height:40px;border-radius:20px;border:none;" +
+        "background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:1;" +
+        "box-shadow:0 2px 6px rgba(0,0,0,.3)";
+
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            document.documentElement.requestFullscreen().catch((err) => {
+                console.warn("fullscreen failed", err);
+            });
+        }
+    });
+
+    (document.body || document.documentElement).appendChild(btn);
+}
+
+addFullscreenButton();
+setInterval(addFullscreenButton, 2000);
+
+mark("injected");
+
 const HOLIDAYS_COLOR = "hsl(2 100% 98%)";
 const YEAR_HOLIDAYS_COLOR = "hsl(2 100% 92%)";
 
@@ -75,6 +125,8 @@ const onCalendarJsonFetched = (calendar) => {
 }
 
 function initFn() {
+    mark("init");
+
     // document.addEventListener("DOMNodeInserted", highlightDates);
 
     // fetch("https://raw.githubusercontent.com/valeg-ag/valeg-ag.github.io/main/calendar.json", { cache: "no-cache" }).then((response) => {
@@ -104,9 +156,13 @@ function initFn() {
             response.text().then((text) => {
                 const calendar = JSON.parse(text);
                 onCalendarJsonFetched(calendar);
+                mark("fetched");
                 highlightDates();
             }
             );
+        })
+        .catch((err) => {
+            alert("calendar fetch failed: " + err);
         });
 
     const observer = new MutationObserver(function (mutations_list) {
@@ -399,4 +455,10 @@ function highlightDates(e) {
     }
 }
 
-window.onload = initFn;
+// window.onload = initFn;
+
+if (document.readyState === "complete") {
+    initFn();
+} else {
+    window.addEventListener("load", initFn);
+}
